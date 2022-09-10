@@ -6,5 +6,5 @@ internal static class Helpers
     {
         < 0 and var mod => mod + b,
         var mod => mod
-    };
+    };    
 }
