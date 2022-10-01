@@ -38,11 +38,11 @@ public sealed class PermutationTable
         => new(permutation);
 
     public static PermutationTable FromPermutationString(string permutation)
-    { 
+    {
         if (permutation.Length != 26)
         {
             throw new ArgumentException(
-                "Length of permutation string must be 26", 
+                "Length of permutation string must be 26",
                 nameof(permutation));
         }
         var dictionary = new Dictionary<char, char>();
