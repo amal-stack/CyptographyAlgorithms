@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using CyptographyAlgorithms.Extensions;
+using System.Collections;
 
 namespace CyptographyAlgorithms;
 
