@@ -1,8 +1,9 @@
-﻿using System.Collections;
+﻿using CyptographyAlgorithms.Extensions;
+using System.Collections;
 
 namespace CyptographyAlgorithms;
 
-public struct InitializationVector
+public readonly struct InitializationVector
 {
     public BitArray Value { get; }
 
@@ -12,4 +13,3 @@ public struct InitializationVector
     public static InitializationVector FromBytes(byte[] value)
         => new(new BitArray(value).Trim());
 }
-
