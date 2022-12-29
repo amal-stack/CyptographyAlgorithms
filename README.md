@@ -143,7 +143,7 @@ D(y_1, y_2) & = {y_2(y_1^a)^{-1}}\pmod p \\
 
 
 
-5. Rabin Cryptosystem
+## 5. Rabin Cryptosystem
 * Based on CRT.
 * Invented before RSA.
 ### Setup
