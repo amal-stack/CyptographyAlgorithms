@@ -210,7 +210,7 @@ $$
 
 
 # Digital Signature Schemes
-1. RSA Signature Scheme
+## 1. RSA Signature Scheme
 ### Setup
 1. Select two primes $p$ and $q$.
 2. Compute $n = pq$.
@@ -245,7 +245,7 @@ m & = D_e(y) \\
 $$
 
 
-2. ElGamal Signature Scheme over $\mathbb{Z}_p$
+## 2. ElGamal Signature Scheme over $\mathbb{Z}_p$
 
 ### Setup
 1. Choose $p$ such that DLP is hard.
