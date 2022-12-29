@@ -211,8 +211,66 @@ $$
 
 # Digital Signature Schemes
 1. RSA Signature Scheme
+### Setup
+1. Select two primes $p$ and $q$.
+2. Compute $n = pq$.
+3. Compute $\phi(n) = (p - 1)(q - 1)$.
+4. Select $e$ such that $\gcd(e,\phi(n)) = 1$.
+5. Find $d$ such that $ed = 1\pmod {\phi(n)}$.
+  * Public Key: $(e, n)$
+  * Private Key: $(d, p, q)$.
+  
+### Signing
+$$
+\begin{array}{c}
+m \in \mathbb{Z}_n \quad gcd(m, n) = 1 \\
+\end{array}
+$$
+
+$$
+\begin{align}
+y & = E_d(m) \\
+& = {m^d}\pmod n \\
+\end{align}
+$$
+
+### Verification
+$$
+\begin{align}
+m & = D_e(y) \\
+& = D_e(E_d(m)) \\
+& = {y^e}\pmod n \\
+& = {m^{ed}}\pmod n \\
+\end{align}
+$$
+
+
 2. ElGamal Signature Scheme over $\mathbb{Z}_p$
 
+### Setup
+1. Choose $p$ such that DLP is hard.
+2. For the cyclic group $\mathbb{Z}_p^{*}$ whose generator is $\alpha$, choose such that $0 \le a \le p-2$.
+3. Compute $\beta = {\alpha^a}\pmod p$.
+* Public Key: $(\alpha, \beta, p)$
+* Private Key: $a$.
+
+### Encryption
+* Choose $k$ such that $k \in \mathbb{Z}_p^{*}$.
+* Message: $x \in \mathbb{Z}_p^{*}$.
+
+$$sign_d(x, k) = (\gamma, \delta)$$
+
+where,
+
+$$\begin{align}
+\gamma &= {\alpha^k} \pmod p  \\
+\delta &= {(x - ay_1)k^{-1}} \pmod p 
+\end{align}$$
+
+### Verification
+1. Calculate $\beta^\gamma \gamma^\delta$.
+2. Calculate $\alpha^x$.
+3. Check if $\beta^\gamma \gamma^\delta = \alpha^x$.
 
 
 
