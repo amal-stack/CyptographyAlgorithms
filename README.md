@@ -1,3 +1,5 @@
+[![.NET](https://github.com/amal-stack/CyptographyAlgorithms/actions/workflows/dotnet.yml/badge.svg)](https://github.com/amal-stack/CyptographyAlgorithms/actions/workflows/dotnet.yml)
+
 # Cyptography Algorithms
 Implementation of cryptography algorithms in C#.
 
