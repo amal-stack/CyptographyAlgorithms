@@ -5,6 +5,10 @@
 
 Implementation of cryptography algorithms in C#.
 
+**The algorithms are implemented purely for educational purposes and are not meant to be used in production.**
+
+
+
 # Symmetric or Secret-key Cryptography
 
 ## 1. Shift Cipher (Caesar)
