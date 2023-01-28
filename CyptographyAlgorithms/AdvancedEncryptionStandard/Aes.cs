@@ -4,24 +4,27 @@ namespace CyptographyAlgorithms.AdvancedEncryptionStandard;
 
 public sealed partial class Aes
 {
-    private const int _blockSize = 4;
-    private const byte _irreduciblePolynomial = 0x1B;
+    private const int _columns = 4;
+    private const byte _irreduciblePolynomial = 0x1b;
 
     private readonly byte[] _key;
 
     public byte[] Key => _key;
 
-    public Action<string>? LogCallback { get; set; }
-
     public Aes(byte[] key)
     {
+        if (!IsValidKey(key))
+        {
+            throw new ArgumentException("Valid key lengths are 128, 192 and 256 bits", nameof(key));
+        }
         _key = key;
     }
 
+    private bool IsValidKey(byte[] key) => key is { Length: 16 or 24 or 32 };
 
     private void AddRoundKey(byte[,] state, Span<byte[]> roundKey)
     {
-        for (int c = 0; c < _blockSize; c++)
+        for (int c = 0; c < _columns; c++)
         {
             for (int r = 0; r < 4; r++)
             {
@@ -51,8 +54,3 @@ public sealed partial class Aes
         return product;
     }
 }
-
-
-
-
-
