@@ -61,30 +61,3 @@ public class AesKeyScheduleRunner : ICryptoAlgorithmRunner
         System.Console.WriteLine();
     }
 }
-
-
-public class AesRunner : ICryptoAlgorithmRunner
-{
-    private static byte[] key128 = Convert.FromHexString("000102030405060708090a0b0c0d0e0f");
-    private static byte[] plaintext128 = Convert.FromHexString("00112233445566778899aabbccddeeff");
-
-    private static byte[] key192 = Convert.FromHexString("000102030405060708090a0b0c0d0e0f1011121314151617");
-
-    private static byte[] key256 = Convert.FromHexString("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f");
-    private static byte[] plaintext256;
-
-    public static void Run()
-    {
-
-        System.Console.WriteLine(Convert.ToHexString(plaintext128));
-        var aes = new Aes(key256)
-        {
-            LogCallback = System.Console.WriteLine
-        };
-        var ciphertext = aes.Encrypt(plaintext128);
-        System.Console.WriteLine(Convert.ToHexString(ciphertext).ToLowerInvariant());
-        System.Console.WriteLine("DECRYPTION");
-        System.Console.WriteLine(Convert.ToHexString(aes.Decrypt(ciphertext)).ToLowerInvariant());
-
-    }
-}
