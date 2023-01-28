@@ -4,6 +4,8 @@ namespace CyptographyAlgorithms.AdvancedEncryptionStandard;
 
 public sealed partial class Aes
 {
+    public Action<string>? LogCallback { get; set; }
+
     private void Log(int round, byte[,] state, string step)
     {
         string message = $"round[{round,2}].{step}";

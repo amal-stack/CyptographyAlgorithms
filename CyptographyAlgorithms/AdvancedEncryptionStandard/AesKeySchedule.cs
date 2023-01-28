@@ -13,7 +13,7 @@ public sealed class AesKeySchedule
     private readonly byte[] _masterKey;
     private readonly int _keyLength;
     private readonly int _rounds;
-    private const int _blockSize = 4;
+    private const int _columns = 4;
 
     public int Rounds => _rounds;
 
@@ -21,7 +21,7 @@ public sealed class AesKeySchedule
     {
         _masterKey = masterKey;
         _keyLength = _masterKey.Length / 4;
-        //_blockSize = _masterKey.Length / _keyLength;
+        //_columns = _masterKey.Length / _keyLength;
         _rounds = _keyLength + 6;
     }
 
@@ -50,7 +50,7 @@ public sealed class AesKeySchedule
 
     public byte[][] GetRoundKeys()
     {
-        int numberOfRoundKeys = _blockSize * (_rounds + 1);
+        int numberOfRoundKeys = _columns * (_rounds + 1);
         Word[] result = new Word[numberOfRoundKeys];
         int i;
         for (i = 0; i < _keyLength; i++)

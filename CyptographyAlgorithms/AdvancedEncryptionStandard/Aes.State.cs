@@ -8,16 +8,15 @@ public sealed partial class Aes
 {
     private static class State
     {
-        internal static byte[,] Create(byte[] plaintext)
+        internal static byte[,] Create(byte[] bytes)
         {
-            byte[,] state = new byte[4, _blockSize];
+            byte[,] state = new byte[4, _columns];
 
-            // Copy input into state
             for (int r = 0; r < 4; r++)
             {
-                for (int c = 0; c < _blockSize; c++)
+                for (int c = 0; c < _columns; c++)
                 {
-                    state[r, c] = plaintext[r + 4 * c];
+                    state[r, c] = bytes[r + 4 * c];
                 }
             }
 
@@ -26,16 +25,16 @@ public sealed partial class Aes
 
         internal static byte[] Flatten(byte[,] state)
         {
-            byte[] ciphertext = new byte[128 / BitConstants.BitsPerByte];
+            byte[] bytes = new byte[128 / BitConstants.BitsPerByte];
             for (int r = 0; r < 4; r++)
             {
-                for (int c = 0; c < _blockSize; c++)
+                for (int c = 0; c < _columns; c++)
                 {
-                    ciphertext[r + 4 * c] = state[r, c];
+                    bytes[r + 4 * c] = state[r, c];
                 }
             }
 
-            return ciphertext;
+            return bytes;
         }
     }
 }

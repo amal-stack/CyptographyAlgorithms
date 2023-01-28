@@ -13,7 +13,7 @@ public sealed partial class Aes
         byte[][] roundKeys = keySchedule.GetRoundKeys();
 
 
-        var roundKey = roundKeys.AsSpan(0.._blockSize);
+        var roundKey = roundKeys.AsSpan(0.._columns);
         AddRoundKey(state, roundKey);
         Log(0, state, roundKey);
 
@@ -28,7 +28,7 @@ public sealed partial class Aes
             MixColumns(state);
             Log(round, state, nameof(MixColumns));
 
-            roundKey = roundKeys.AsSpan(round * _blockSize, _blockSize);
+            roundKey = roundKeys.AsSpan(round * _columns, _columns);
             AddRoundKey(state, roundKey);
             Log(round, state, roundKey);
 
@@ -54,7 +54,7 @@ public sealed partial class Aes
     {
         for (int r = 0; r < 4; r++)
         {
-            for (int c = 0; c < _blockSize; c++)
+            for (int c = 0; c < _columns; c++)
             {
                 state[r, c] = AesSbox.Get(state[r, c]);
             }
@@ -76,8 +76,8 @@ public sealed partial class Aes
     private void MixColumns(byte[,] state)
     {
 
-        byte[,] temp = new byte[4, _blockSize];
-        for (int c = 0; c < _blockSize; c++)
+        byte[,] temp = new byte[4, _columns];
+        for (int c = 0; c < _columns; c++)
         {
             temp[0, c] = (byte)(GF2Pow8Multiply(state[0, c], 0x02) ^ GF2Pow8Multiply(state[1, c], 0x03) ^ state[2, c] ^ state[3, c]);
             temp[1, c] = (byte)(state[0, c] ^ GF2Pow8Multiply(state[1, c], 0x02) ^ GF2Pow8Multiply(state[2, c], 0x03) ^ state[3, c]);

@@ -5,7 +5,6 @@ public sealed partial class Aes
     public byte[] Decrypt(byte[] ciphertext)
     {
         byte[,] state = State.Create(ciphertext);
-
         // Generate Round Keys
         var keySchedule = new AesKeySchedule(Key);
         byte[][] roundKeys = keySchedule.GetRoundKeys();
@@ -26,7 +25,7 @@ public sealed partial class Aes
             InverseSubBytes(state);
             Log(increasingRound, state, nameof(InverseSubBytes));
 
-            roundKey = roundKeys.AsSpan(round * _blockSize, _blockSize);
+            roundKey = roundKeys.AsSpan(round * _columns, _columns);
             AddRoundKey(state, roundKey);
             Log(increasingRound, state, roundKey);
 
@@ -41,7 +40,7 @@ public sealed partial class Aes
         InverseSubBytes(state);
         Log(keySchedule.Rounds, state, nameof(InverseSubBytes));
 
-        roundKey = roundKeys.AsSpan(.._blockSize);
+        roundKey = roundKeys.AsSpan(.._columns);
         AddRoundKey(state, roundKey);
         Log(keySchedule.Rounds, state, roundKey);
 
@@ -55,7 +54,7 @@ public sealed partial class Aes
     {
         for (int r = 0; r < 4; r++)
         {
-            for (int c = 0; c < _blockSize; c++)
+            for (int c = 0; c < _columns; c++)
             {
                 state[r, c] = AesSbox.Inverse.Get(state[r, c]);
             }
@@ -76,8 +75,8 @@ public sealed partial class Aes
 
     private void InverseMixColumns(byte[,] state)
     {
-        byte[,] temp = new byte[4, _blockSize];
-        for (int c = 0; c < _blockSize; c++)
+        byte[,] temp = new byte[4, _columns];
+        for (int c = 0; c < _columns; c++)
         {
             temp[0, c] = (byte)(GF2Pow8Multiply(state[0, c], 0x0e) ^ GF2Pow8Multiply(state[1, c], 0x0b) ^ GF2Pow8Multiply(state[2, c], 0x0d) ^ GF2Pow8Multiply(state[3, c], 0x09));
             temp[1, c] = (byte)(GF2Pow8Multiply(state[0, c], 0x09) ^ GF2Pow8Multiply(state[1, c], 0x0e) ^ GF2Pow8Multiply(state[2, c], 0x0b) ^ GF2Pow8Multiply(state[3, c], 0x0d));
