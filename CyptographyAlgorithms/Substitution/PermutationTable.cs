@@ -76,11 +76,6 @@ public sealed class PermutationTable
             .Zip(Alphabet.Shuffle())
             .ToDictionary(p => p.First, p => p.Second));
 
-    //public override string ToString() => string.Join(
-    //        Environment.NewLine,
-    //        from pair in Table
-    //        select $"{pair.Key} -> {pair.Value}"
-    //    );
 
     public override string ToString()
     {

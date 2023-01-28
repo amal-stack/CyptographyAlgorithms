@@ -41,10 +41,5 @@ public static class BitArrayExtensions
         return result[0];
     }
 
-    public static string ToBitString(this BitArray bitArray, char delimiter = ' ') => string.Concat(
-        bitArray
-            .OfType<bool>()
-            //.Reverse()
-            .Select((i, idx) => (i ? 1 : 0) + ((idx + 1) % 8 == 0 ? delimiter.ToString() : ""))
-    );
+    
 }
