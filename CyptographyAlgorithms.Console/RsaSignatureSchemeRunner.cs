@@ -13,7 +13,7 @@ public class RsaSignatureSchemeRunner
 
         // Input RSA parameters
         System.Console.Write("Enter a large prime p: ");
-        var p = BigInteger.Parse(System.Console.ReadLine()!); 
+        var p = BigInteger.Parse(System.Console.ReadLine()!);
 
         System.Console.Write("Enter a large prime q: ");
         var q = BigInteger.Parse(System.Console.ReadLine()!);

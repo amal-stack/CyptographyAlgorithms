@@ -39,12 +39,12 @@ public static class ByteExtensions
     /// <returns>A new <see cref="byte"/> array with the extracted bits.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="start"/> or <paramref name="length"/> are out of range.</exception>
     public static byte[] GetBitRange(
-        this byte[] bytes, 
-        int start, 
-        int length, 
-        Endianness endianness, 
+        this byte[] bytes,
+        int start,
+        int length,
+        Endianness endianness,
         BitNumbering bitNumbering)
-    { 
+    {
         int bitsPerByte = 8;
         // Calculate the length of the input byte array in bits 
         int inputLength = bytes.Length * bitsPerByte;
@@ -107,5 +107,5 @@ public static class ByteExtensions
         return result;
     }
 
-    
+
 }

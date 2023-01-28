@@ -1,5 +1,5 @@
-﻿using System.Numerics;
-using CyptographyAlgorithms.Extensions;
+﻿using CyptographyAlgorithms.Extensions;
+using System.Numerics;
 
 namespace CyptographyAlgorithms.Rsa;
 
@@ -22,7 +22,7 @@ public class RsaSignatureScheme : ISignatureScheme
         byte[] hash = ModularArithmetic.Mod(new BigInteger(HashAlgorithm.Hash(message)), PublicKey.N)
             .ToByteArray();
         byte[] plaintext = Transform(signature, PublicKey.E);
-        
+
         return Enumerable.SequenceEqual(hash, plaintext);
     }
 

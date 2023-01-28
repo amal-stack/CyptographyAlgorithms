@@ -7,7 +7,7 @@ public class LfsrRunner : ICryptoAlgorithmRunner
 {
     public static void RunLfsr()
     {
-        
+
         System.Console.WriteLine("Linear-feedback shift register (LFSR) implementation");
         System.Console.Write("Enter the size of LFSR> ");
         int size = int.Parse(System.Console.ReadLine()!);

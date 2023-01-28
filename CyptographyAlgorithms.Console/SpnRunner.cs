@@ -7,7 +7,7 @@ public class SpnRunner : ICryptoAlgorithmRunner
 {
     public static void Run()
     {
-        SPNetwork spn =  new SPNetworkBuilder()
+        SPNetwork spn = new SPNetworkBuilder()
             .OfRounds(5)
             .AddSBox(new SpnSbox())
             .AddPBox(new SpnPbox())

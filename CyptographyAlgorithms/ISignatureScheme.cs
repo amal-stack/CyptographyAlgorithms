@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace CyptographyAlgorithms;
+﻿namespace CyptographyAlgorithms;
 
 public interface ISignatureScheme
 {

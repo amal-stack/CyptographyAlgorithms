@@ -50,5 +50,6 @@ public class SPNetworkBuilder
             _algorithm,
             _sBox,
             _pBox,
-            _rounds) { LogCallback = _logCallback };
+            _rounds)
+    { LogCallback = _logCallback };
 }

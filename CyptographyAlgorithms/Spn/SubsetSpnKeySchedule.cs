@@ -26,7 +26,7 @@ public class SubsetSpnKeySchedule
                 startBit++;
             }
         }
-        
+
         return roundKey;
     }
 }

@@ -1,5 +1,5 @@
-﻿using System.Text;
-using CyptographyAlgorithms.Extensions;
+﻿using CyptographyAlgorithms.Extensions;
+using System.Text;
 
 namespace CyptographyAlgorithms.Substitution;
 

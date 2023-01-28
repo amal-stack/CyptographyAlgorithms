@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using CyptographyAlgorithms.Extensions;
+using System.Collections;
 using System.Text;
-using CyptographyAlgorithms.Extensions;
 
 namespace CyptographyAlgorithms.Stream;
 

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 
 namespace CyptographyAlgorithms.Extensions;
 

@@ -41,5 +41,5 @@ public static class BitArrayExtensions
         return result[0];
     }
 
-    
+
 }

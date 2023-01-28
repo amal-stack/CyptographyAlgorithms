@@ -1,6 +1,4 @@
-﻿using System.Numerics;
-
-namespace CyptographyAlgorithms.Extensions;
+﻿namespace CyptographyAlgorithms.Extensions;
 
 public static class Nibble
 {

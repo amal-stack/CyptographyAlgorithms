@@ -1,6 +1,4 @@
-﻿
-using CyptographyAlgorithms;
-using CyptographyAlgorithms.Substitution;
+﻿using CyptographyAlgorithms.Substitution;
 
 namespace CyptographyAlgorithms.Console;
 

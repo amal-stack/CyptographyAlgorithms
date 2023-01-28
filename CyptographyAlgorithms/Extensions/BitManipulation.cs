@@ -14,12 +14,12 @@ public static class BitManipulation
     }
 
     public static (int ByteIndex, int BitIndex) GetBitAndByteIndexes(
-        int bitIndex, 
-        int length, 
-        Endianness endianness, 
+        int bitIndex,
+        int length,
+        Endianness endianness,
         BitNumbering bitNumbering)
     {
-        var (outputbyteIndex,outputBitIndex) = Math.DivRem(bitIndex, BitConstants.BitsPerByte);
+        var (outputbyteIndex, outputBitIndex) = Math.DivRem(bitIndex, BitConstants.BitsPerByte);
 
         if (endianness is Endianness.LittleEndian)
         {

@@ -3,5 +3,5 @@
 namespace CyptographyAlgorithms.Rsa;
 
 public readonly record struct RsaPublicKey(
-    BigInteger E, 
+    BigInteger E,
     BigInteger N);
