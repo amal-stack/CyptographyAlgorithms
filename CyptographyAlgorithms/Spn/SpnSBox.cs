@@ -2,7 +2,7 @@
 
 namespace CyptographyAlgorithms.Spn;
 
-public sealed class SpnSBox : ITransformation
+public sealed class SpnSbox : ITransformation
 {
     private readonly IReadOnlyDictionary<byte, byte> _table = new Dictionary<byte, byte>()
     {
@@ -26,7 +26,7 @@ public sealed class SpnSBox : ITransformation
 
     private readonly IReadOnlyDictionary<byte, byte> _inverseTable;
 
-    public SpnSBox()
+    public SpnSbox()
     {
         _inverseTable = _table.ToDictionary(p => p.Value, p => p.Key);
     }
@@ -44,7 +44,7 @@ public sealed class SpnSBox : ITransformation
             byte b = value[i];
             byte high = table[b.GetHighNibble()];
             byte low = table[b.GetLowNibble()];
-            result[i] = (byte)(high << 4 | low);
+            result[i] = Nibble.ToByte(high, low);
         }
         return result;
     }

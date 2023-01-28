@@ -5,8 +5,9 @@ public class SPNetworkBuilder
     private byte[] _key = default!;
     private ITransformation _sBox = default!;
     private ITransformation _pBox = default!;
-    private Func<byte[], int, byte[]> _algorithm = default!;
+    private SpnKeySchedule _algorithm = default!;
     private int _rounds;
+    private Action<string>? _logCallback;
 
     public SPNetworkBuilder AddSBox(ITransformation sBox)
     {
@@ -32,9 +33,15 @@ public class SPNetworkBuilder
         return this;
     }
 
-    public SPNetworkBuilder GenerateRoundKeysUsing(Func<byte[], int, byte[]> algorithm)
+    public SPNetworkBuilder GenerateRoundKeysUsing(SpnKeySchedule algorithm)
     {
         _algorithm = algorithm;
+        return this;
+    }
+
+    public SPNetworkBuilder LogTo(Action<string> action)
+    {
+        _logCallback = action;
         return this;
     }
 
@@ -43,5 +50,5 @@ public class SPNetworkBuilder
             _algorithm,
             _sBox,
             _pBox,
-            _rounds);
+            _rounds) { LogCallback = _logCallback };
 }

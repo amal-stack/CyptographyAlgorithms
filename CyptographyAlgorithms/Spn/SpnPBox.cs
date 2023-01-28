@@ -1,6 +1,8 @@
-﻿namespace CyptographyAlgorithms.Spn;
+﻿using CyptographyAlgorithms.Extensions;
 
-public sealed class SpnPBox : ITransformation
+namespace CyptographyAlgorithms.Spn;
+
+public sealed class SpnPbox : ITransformation
 {
     private readonly IReadOnlyDictionary<int, int> _table = new Dictionary<int, int>()
     {
@@ -24,7 +26,7 @@ public sealed class SpnPBox : ITransformation
 
     private readonly IReadOnlyDictionary<int, int> _inverseTable;
 
-    public SpnPBox()
+    public SpnPbox()
     {
         _inverseTable = _table.ToDictionary(p => p.Value, p => p.Key);
     }
@@ -33,14 +35,25 @@ public sealed class SpnPBox : ITransformation
 
     public byte[] ApplyInverse(byte[] value) => Apply(value, _inverseTable);
 
-    private byte[] Apply(byte[] value, IReadOnlyDictionary<int, int> table)
+    private static byte[] Apply(byte[] value, IReadOnlyDictionary<int, int> table)
     {
         byte[] result = new byte[value.Length];
-        for (int i = 0; i < value.Length; i++)
+        var bitsPerByte = BitConstants.BitsPerByte;
+        for (int i = 0; i < result.Length; i++)
         {
-            int highPosition = table[i];
-            int lowPosition = table[i + 1];
-            result[i] = (byte)(value[highPosition] << 4 | value[lowPosition]);
+            for (int j = 0; j < bitsPerByte; j++)
+            {
+                var inputIndex = i * bitsPerByte + j;
+                var (inputByteIndex, inputBitIndex) = Math.DivRem(inputIndex, bitsPerByte);
+
+                // + 1 and -1 to compensate for 1-based indexing
+                int outputIndex = table[inputIndex + 1] - 1;
+                var (outputByteIndex, outputBitIndex) = Math.DivRem(outputIndex, bitsPerByte);
+
+                // (BitsPerByte - 1 - index) to address bits MSB first 
+                int outputBit = (value[outputByteIndex] >> (bitsPerByte - 1 - outputBitIndex)) & 1;
+                result[inputByteIndex] |= (byte)(outputBit << (bitsPerByte - 1 - inputBitIndex));
+            }
         }
         return result;
     }
