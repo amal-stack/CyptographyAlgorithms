@@ -71,7 +71,7 @@ public sealed class Lfsr : IEnumerable<bool>
     {
         ThrowIfUninitialized();
         BitArray previousValue = new(CurrentValue!);
-        BitArrayComparer comparer = new();
+        BitArrayEqualityComparer comparer = new();
         int period = 0;
         Reset();
         do

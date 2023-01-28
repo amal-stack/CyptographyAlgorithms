@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CyptographyAlgorithms.Extensions;
 
-internal class BitArrayComparer : IEqualityComparer<BitArray>
+internal class BitArrayEqualityComparer : IEqualityComparer<BitArray>
 {
     public bool Equals(BitArray? x, BitArray? y) => (x, y) switch
     {
