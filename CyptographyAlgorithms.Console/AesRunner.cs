@@ -4,6 +4,7 @@ namespace CyptographyAlgorithms.Console;
 
 using Console = System.Console;
 
+[Demonstrates<Aes>]
 public class AesRunner : ICryptoAlgorithmRunner
 {
 
@@ -21,7 +22,7 @@ public class AesRunner : ICryptoAlgorithmRunner
 
     public static void Run()
     {
-        string rule = new('=', 50);
+        string rule = new('=', 64);
 
         Console.WriteLine("AES-128");
         Console.WriteLine(rule);

@@ -2,6 +2,7 @@
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<MonoalphabeticSubstitutionCipher>]
 public class MonoalphabeticSubtitutionCipherRunner : ICryptoAlgorithmRunner
 {
     static void RunMonoalphabeticSubstitutionCipher()

@@ -3,6 +3,7 @@ using CyptographyAlgorithms.Spn;
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<SPNetwork>]
 public class SpnRunner : ICryptoAlgorithmRunner
 {
     public static void Run()

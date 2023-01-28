@@ -2,6 +2,7 @@
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<ShiftCipher>]
 public class ShiftCipherRunner : ICryptoAlgorithmRunner
 {
     static void RunShiftCipher()

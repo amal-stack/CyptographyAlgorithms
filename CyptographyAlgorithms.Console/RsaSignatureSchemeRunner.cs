@@ -5,6 +5,7 @@ using System.Text;
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<RsaSignatureScheme>]
 public class RsaSignatureSchemeRunner
 {
     public static void Run()

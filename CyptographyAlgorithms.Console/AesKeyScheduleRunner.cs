@@ -2,6 +2,7 @@
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<AesKeySchedule>]
 public class AesKeyScheduleRunner : ICryptoAlgorithmRunner
 {
     public static void Run()

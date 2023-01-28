@@ -3,6 +3,7 @@ using CyptographyAlgorithms.Stream;
 
 namespace CyptographyAlgorithms.Console;
 
+[Demonstrates<Lfsr>]
 public class LfsrRunner : ICryptoAlgorithmRunner
 {
     public static void RunLfsr()

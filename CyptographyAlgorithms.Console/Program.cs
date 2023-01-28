@@ -6,6 +6,8 @@ internal class Program
     public static void Main()
     {
         //RsaSignatureSchemeRunner.Run();
-        KnapsackRunner.Run();
+        //KnapsackRunner.Run();
+        //SpnRunner.Run();
+        AesRunner.Run();
     }
 }
