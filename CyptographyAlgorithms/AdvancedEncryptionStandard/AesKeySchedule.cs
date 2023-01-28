@@ -1,6 +1,6 @@
 ﻿using System.Buffers;
 
-namespace CyptographyAlgorithms.Aes;
+namespace CyptographyAlgorithms.AdvancedEncryptionStandard;
 
 public sealed class AesKeySchedule
 {
@@ -13,7 +13,9 @@ public sealed class AesKeySchedule
     private readonly byte[] _masterKey;
     private readonly int _keyLength;
     private readonly int _rounds;
-    private const int BlockSize = 4;
+    private const int _blockSize = 4;
+
+    public int Rounds => _rounds;
 
     public AesKeySchedule(byte[] masterKey)
     {
@@ -48,7 +50,7 @@ public sealed class AesKeySchedule
 
     public byte[][] GetRoundKeys()
     {
-        int numberOfRoundKeys = BlockSize * (_rounds + 1);
+        int numberOfRoundKeys = _blockSize * (_rounds + 1);
         Word[] result = new Word[numberOfRoundKeys];
         int i;
         for (i = 0; i < _keyLength; i++)

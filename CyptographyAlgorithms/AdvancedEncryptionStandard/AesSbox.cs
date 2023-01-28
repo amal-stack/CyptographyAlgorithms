@@ -1,10 +1,10 @@
 ﻿using CyptographyAlgorithms.Extensions;
 
-namespace CyptographyAlgorithms.Aes;
+namespace CyptographyAlgorithms.AdvancedEncryptionStandard;
 
-internal static class AesSbox
+internal static partial class AesSbox
 {
-    public static readonly byte[,] _sbox =
+    private static readonly byte[,] _sbox =
     {
         {
             0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5,

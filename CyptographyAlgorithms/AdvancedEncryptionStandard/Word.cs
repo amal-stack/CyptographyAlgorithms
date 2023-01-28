@@ -1,4 +1,4 @@
-﻿namespace CyptographyAlgorithms.Aes;
+﻿namespace CyptographyAlgorithms.AdvancedEncryptionStandard;
 
 struct Word
 {
