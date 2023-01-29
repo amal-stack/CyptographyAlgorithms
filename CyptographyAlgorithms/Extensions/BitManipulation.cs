@@ -15,7 +15,7 @@ public static class BitManipulation
 
     public static (int ByteIndex, int BitIndex) GetBitAndByteIndexes(
         int bitIndex,
-        int length,
+        int byteLength,
         Endianness endianness,
         BitNumbering bitNumbering)
     {
@@ -23,7 +23,7 @@ public static class BitManipulation
 
         if (endianness is Endianness.LittleEndian)
         {
-            outputbyteIndex = length - 1 - outputbyteIndex;
+            outputbyteIndex = byteLength - 1 - outputbyteIndex;
         }
         if (bitNumbering is BitNumbering.Msb0)
         {
