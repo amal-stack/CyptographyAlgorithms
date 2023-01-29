@@ -1,94 +1,201 @@
-﻿using System.Buffers.Binary;
+﻿using CyptographyAlgorithms.Extensions;
 using System.Collections;
 using System.Numerics;
-using CyptographyAlgorithms.Extensions;
 
 namespace CyptographyAlgorithms.Knapsack;
 
 public class KnapsackCryptosystem
 {
-    const int BitsPerByte = 8;
+    private const int _bitsPerByte = 8;
 
-    private KnapsackCryptosystem(PublicKeyInfo publicKey, PrivateKeyInfo privateKey)
+    private readonly int _blockSize;
+    private readonly BigInteger _wInverse;
+    private readonly BigInteger _privateSequenceSum;
+    private readonly BigInteger _publicSequenceSum;
+    
+    public PublicKeyInfo PublicKey { get; }
+    public PrivateKeyInfo PrivateKey { get; }
+
+    private KnapsackCryptosystem(
+        PublicKeyInfo publicKey,
+        PrivateKeyInfo privateKey,
+        BigInteger privateSequenceSum,
+        BigInteger publicSequenceSum)
     {
         PublicKey = publicKey;
         PrivateKey = privateKey;
+        _privateSequenceSum = privateSequenceSum;
+        _publicSequenceSum = publicSequenceSum;
+        _blockSize = publicSequenceSum.GetByteCount();
+        _wInverse = ModularArithmetic.MultiplicativeInverse(PrivateKey.W, PrivateKey.M);
+
+        Console.WriteLine($"Block Size {_blockSize}");
     }
 
     public static KnapsackCryptosystem Create(
-        IReadOnlyList<int> sequence, int m, int w)
+        IReadOnlyList<BigInteger> sequence,
+        BigInteger m,
+        BigInteger w)
     {
         if (sequence.Count == 0)
         {
             throw new ArgumentException(
-                "Sequence must be non-empty.", 
+                "Sequence must be non-empty.",
                 nameof(sequence));
         }
-        int sum = sequence[0];
+
+        BigInteger privateSequenceSum = sequence[0];
         for (int i = 1; i < sequence.Count; i++)
         {
-            if (sequence[i] <= sum)
+            if (sequence[i] <= privateSequenceSum)
             {
                 throw new ArgumentException(
-                    "Not a superincreasing sequence.", 
+                    "Not a superincreasing sequence.",
                     nameof(sequence));
             }
-            sum += sequence[i];
+            privateSequenceSum += sequence[i];
         }
-        if (m <= sum)
+        if (m <= privateSequenceSum)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(m), 
+                nameof(m),
                 "m must be greater than the sum of the sequence.");
         }
 
         if (MathHelpers.Gcd(m, w) != 1)
         {
             throw new ArgumentException(
-                "w must be coprime to m.", 
+                "w must be coprime to m.",
                 nameof(w));
         }
 
-        IReadOnlyList<int> publicSequence = GeneratePublicSequence(sequence, m, w);
+        IReadOnlyList<BigInteger> publicSequence = GeneratePublicSequence(sequence, m, w);
+        var publicSequenceSum = publicSequence.Aggregate(BigInteger.Add);
 
         return new KnapsackCryptosystem(
             new PublicKeyInfo(publicSequence),
-            new PrivateKeyInfo(sequence, m, w)
+            new PrivateKeyInfo(sequence, m, w),
+            privateSequenceSum,
+            publicSequenceSum
         );
     }
 
-    private static IReadOnlyList<int> GeneratePublicSequence(
-        IReadOnlyList<int> sequence, int m, int w) => (
+    private static IReadOnlyList<BigInteger> GeneratePublicSequence(
+        IReadOnlyList<BigInteger> sequence, BigInteger m, BigInteger w) => (
             from item in sequence
             select (w * item) % m)
             .ToList()
             .AsReadOnly();    // Multiply each item in the sequence by w and mod by m
 
-    public PublicKeyInfo PublicKey { get; }
-
-    private PrivateKeyInfo PrivateKey { get; }
-
     public byte[] Encrypt(byte[] plaintext)
+    {
+        var sequence = PublicKey.Sequence;
+        var (quotient, remainder) = Math.DivRem(plaintext.Length * _bitsPerByte, sequence.Count);
+
+        // Add an extra block to accomodate the rest of the bits
+        int ciphertextBlockCount = quotient + 1;
+
+        BigInteger[] ciphertext = new BigInteger[ciphertextBlockCount];
+
+        byte[] ciphertextBytes = new byte[ciphertextBlockCount * _blockSize];
+
+        #region Calculate Padding 
+        // int paddingSize = (sequence.Count / _bitsPerByte) + 1;
+        //var (paddingByteIndex, paddingBitIndex) = Math.DivRem(remainder, _bitsPerByte);
+        #endregion
+
+        for (int i = 0; i < ciphertextBlockCount; i++)
+        {
+            for (int j = 0; j < sequence.Count; j++)
+            {
+                // Little-endian, MSB first indexing
+                int bitIndexInPlaintext = (i + 1) * sequence.Count - j - 1; // OR = ((ciphertextBlockCount - 1 - i) * sequence.Count) + (sequence.Count - 1 - j);
+
+                var (byteIndexInPlaintext, bitIndexInByte) = BitManipulation.GetBitAndByteIndexes(
+                    bitIndexInPlaintext,
+                    plaintext.Length,
+                    Endianness.BigEndian,
+                    BitNumbering.Lsb0);
+
+                int bit = byteIndexInPlaintext < plaintext.Length && byteIndexInPlaintext > -1
+                    ? (plaintext[byteIndexInPlaintext] >> bitIndexInByte) & 1
+                    : 0;
+
+                if (bit == 1)
+                {
+                    ciphertext[i] += sequence[j];
+                }
+            }
+
+            // Shorter blocks will be zero-padded in TryWriteBytes below
+            if (ciphertext[i].GetByteCount() != _blockSize)
+            {
+                Console.WriteLine("Unmatching lengths. Index {2}. Block Size {0}. Byte Count {1}", _blockSize, ciphertext[i].GetByteCount(), i);
+            }
+            Console.WriteLine($"Ciphertext block {i}: {ciphertext[i]}");
+
+            ciphertext[i].TryWriteBytes(
+                ciphertextBytes.AsSpan(i * _blockSize, _blockSize),
+                out int bytesWritten);
+
+            Console.WriteLine($"Bytes Written: {bytesWritten}");
+        }
+        return ciphertextBytes;
+    }
+
+    public byte[] Decrypt(byte[] ciphertext)
+    {
+        var sequence = PrivateKey.Sequence;
+        int blockCount = ciphertext.Length / _blockSize;
+
+        BigInteger[] ciphertextInts = new BigInteger[blockCount];
+        byte[] plaintextBytes = new byte[blockCount * _blockSize];
+        for (int i = 0; i < blockCount; i++)
+        {
+            int startIndex = i * _blockSize;
+            var ciphertextBlock = new BigInteger(ciphertext.AsSpan(startIndex, _blockSize));
+            ciphertextInts[i] = (ciphertextBlock * _wInverse) % PrivateKey.M;
+
+            for (int j = sequence.Count - 1; j >= 0; j--)
+            {
+                if (ciphertextInts[i] >= sequence[j])
+                {
+                    int bitIndexInPlaintext = (i + 1) * sequence.Count - j - 1; 
+
+                    var (byteIndexInPlaintext, bitIndexInByte) = BitManipulation.GetBitAndByteIndexes(
+                        bitIndexInPlaintext,
+                        plaintextBytes.Length,
+                        Endianness.BigEndian,
+                        BitNumbering.Lsb0);
+
+                    if (byteIndexInPlaintext > -1 && byteIndexInPlaintext < plaintextBytes.Length)
+                    {
+                        plaintextBytes[byteIndexInPlaintext] |= (byte)(1 << bitIndexInByte);
+                        ciphertextInts[i] -= sequence[j];
+                    }
+                }
+            }
+        }
+        return plaintextBytes;
+    }
+
+    [Obsolete]
+    private byte[] EncryptBitArray(byte[] plaintext)
     {
         var plaintextBits = new BitArray(plaintext);
         var sequence = PublicKey.Sequence;
-        
+
         // Calculate number of ciphertext blocks:
-        // Dividing the length of the sequence by the bit length of the plaintext gives
-        // the number of ciphertext blocks. If the plaintext bit length is not a multiple of 
+        // Dividing the length of the sequence by the bit length of the ciphertextInts gives
+        // the number of ciphertext blocks. If the ciphertextInts bit length is not a multiple of 
         // the sequence length (remainder != 0), an extra block is required.
         var (quotient, remainder) = Math.DivRem(plaintextBits.Count, sequence.Count);
-        var ciphertextBlocks = quotient + (remainder == 0 ? 0 : 1);
+        var ciphertextBlockCount = quotient + (remainder == 0 ? 0 : 1);
 
+        var ciphertext = new BigInteger[ciphertextBlockCount];
 
-        var ciphertext = new BigInteger[ciphertextBlocks];
-
-        //Console.WriteLine($"Ciphertext Length {ciphertextBlocks}");
-
-        Console.WriteLine("Bits");
-
-        // Apply the sequence to each plaintext block
-        for (int i = 0; i < ciphertextBlocks; i++)
+        // Apply the sequence to each ciphertextInts block
+        for (int i = 0; i < ciphertextBlockCount; i++)
         {
             for (int j = 0; j < sequence.Count; j++)
             {
@@ -99,53 +206,64 @@ public class KnapsackCryptosystem
 
                 try
                 {
-                    var bit = plaintextBits[bitIndex];
-                    //Console.WriteLine($"j={j} : idx={rIndex} : bit={(bit ? 1 : 0)} | ");
-                    Console.WriteLine($"j={j} : idx={bitIndex} : bit={(bit ? 1 : 0)} : ");
+                    var bit = plaintextBits[Idx.Get(i, j, sequence.Count)];
+                    //Console.WriteLine($"j={j} : idx={bitIndex} : bit={(bit ? 1 : 0)} : ");
                     if (bit)
                     {
-                        Console.WriteLine($"+{sequence[j]} .");
+                        //    Console.WriteLine($"+{sequence[j]} .");
                         ciphertext[i] += sequence[j];
                     }
                 }
                 catch (ArgumentOutOfRangeException)
                 {
-                    // thrown at the last block when the sequence length exceeds the last plaintext block
+                    // thrown at the last block when the sequence length exceeds the last ciphertextInts block
                     Console.WriteLine(nameof(ArgumentOutOfRangeException) + " " + bitIndex);
                     break;
+                }
+                if (ciphertext[i].GetByteCount() != _blockSize)
+                {
+                    byte[] temp = new byte[_blockSize];
+                    ciphertext[i].TryWriteBytes(temp, out int tempBytesWritten);
+                    ciphertext[i] = new BigInteger(temp);
                 }
             }
             Console.WriteLine();
         }
-        Console.WriteLine("Ciphertext Elements:");
+
+        //Console.WriteLine("Ciphertext Elements:");
         Array.ForEach(ciphertext, x => Console.WriteLine(x));
 
-        var ciphertextBytes = ciphertext.SelectMany(c => c.ToByteArray()).ToArray(); 
+        var ciphertextBytes = ciphertext.SelectMany(c => c.ToByteArray()).ToArray();
         // Convert long[] to byte[]
-        //var ciphertextBytes = new byte[ciphertextBlocks * sizeof(long)];
+        //var ciphertextBytes = new byte[ciphertextBlockCount * sizeof(long)];
         //Console.WriteLine($" IS_EQUAL: {ciphertextBytes.Length == Buffer.ByteLength(ciphertext)}");
         //Buffer.BlockCopy(ciphertext, 0, ciphertextBytes, 0, ciphertextBytes.Length);
         return ciphertextBytes;
     }
 
 
-    public byte[] Decrypt(byte[] ciphertext)
+    [Obsolete]
+    private byte[] DecryptBitArray(byte[] ciphertext)
     {
         // Convert byte[] back to long[]
         //long[] cipherTextInt = new long[ciphertext.Length / sizeof(long)];
         //Buffer.BlockCopy(ciphertext, 0, cipherTextInt, 0, ciphertext.Length);
-
-
         var sequence = PrivateKey.Sequence;
-        int wInverse = ModularArithmetic.MultiplicativeInverse(PrivateKey.W, PrivateKey.M);
-        Console.WriteLine($"wInverse: {wInverse}");
 
-        var plaintextBits = new BitArray(ciphertext.Length * PrivateKey.Sequence.Count);
+        //Console.WriteLine($"wInverse: {_wInverse}");
+
+        int blockLength = ciphertext.Length / _blockSize;
+        var plaintextBits = new BitArray(blockLength * _blockSize * _bitsPerByte);
         //var plaintextBits = new BitArray(ciphertextBlockSize * sequence.Count);
-        BigInteger[] ciphertextInts = new BigInteger[ciphertext.Length];
+        BigInteger[] ciphertextInts = new BigInteger[blockLength];
         for (int i = 0; i < ciphertextInts.Length; i++)
         {
-            var ciphertextElement = (wInverse * ciphertextInts[i]) % PrivateKey.M;
+            int startIndex = i * _blockSize;
+            ciphertextInts[i] = new BigInteger(ciphertext.AsSpan(startIndex, _blockSize));
+        }
+        for (int i = 0; i < ciphertextInts.Length; i++)
+        {
+            var ciphertextElement = (_wInverse * ciphertextInts[i]) % PrivateKey.M;
 
             for (int j = PrivateKey.Sequence.Count - 1; j >= 0; j--)
             {
@@ -157,7 +275,7 @@ public class KnapsackCryptosystem
                     int bitIndex = endIndex - j - 1;
 
                     //Console.WriteLine($"Ciphertext element: {ciphertextElement}");
-                    plaintextBits[Idx.Get(i, j, PrivateKey.Sequence.Count)] = true;
+                    plaintextBits[bitIndex] = true;
                     ciphertextElement -= PrivateKey.Sequence[j];
                     //Console.WriteLine($"    Minus {PrivateKey.Sequence[j]}. element: {ciphertextElement}");
                 }
@@ -165,46 +283,18 @@ public class KnapsackCryptosystem
         }
 
         // Copy BitArray data to byte[] array and return
-        var (quotient1, remainder1) = Math.DivRem(plaintextBits.Length, BitsPerByte);
+        var (quotient1, remainder1) = Math.DivRem(plaintextBits.Length, _bitsPerByte);
         byte[] bytes = new byte[quotient1 + (remainder1 == 0 ? 0 : 1)];
         plaintextBits.CopyTo(bytes, 0);
         return bytes;
     }
 
-    public readonly record struct PublicKeyInfo(IReadOnlyList<int> Sequence);
+    public readonly record struct PublicKeyInfo(IReadOnlyList<BigInteger> Sequence);
 
-    private readonly record struct PrivateKeyInfo(IReadOnlyList<int> Sequence, int M, int W);
-
-    public static class RandomGenerators
-    {
-        public static IReadOnlyList<int> SuperincreasingSequence(int length, int toExclusive)
-        {
-            int sum = 0;
-            List<int> sequence = new(length);
-            for (int i = 0; i < length; i++)
-            {
-                int element = sum 
-                    + System.Security.Cryptography.RandomNumberGenerator.GetInt32(1, toExclusive);
-                sequence.Add(element);
-                sum += element;
-            }
-            return sequence.AsReadOnly();
-        }
-
-        public static int IntegerGreaterThan(int sum, int toExclusive) => 
-            sum 
-            + System.Security.Cryptography.RandomNumberGenerator.GetInt32(1, 255);
-
-        public static int IntegerCoprimeTo(int number, int toExclusive)
-        {
-            int result = System.Security.Cryptography.RandomNumberGenerator.GetInt32(1, toExclusive);
-            while (MathHelpers.Gcd(number, result) != 1)
-            {
-                result = System.Security.Cryptography.RandomNumberGenerator.GetInt32(1, toExclusive);
-            }
-            return result;
-        }
-    }
+    public readonly record struct PrivateKeyInfo(
+        IReadOnlyList<BigInteger> Sequence,
+        BigInteger M,
+        BigInteger W);
 }
 
 file static class Idx
@@ -221,9 +311,19 @@ file static class Idx
 
     public static Index Test(int i, int j, int count)
     {
-       int end = (i + 1) * count;
+        int end = (i + 1) * count;
         return end - j - 1;
     }
 
-    public static Func<int, int, int, Index> Get => Test;
+    public static Func<int, int, int, Index> Get => ForwardBigEndian;
 }
+
+
+//int blockIndex = (_endianness is Endianness.BigEndian
+//                        ? i
+//                        : ciphertextBlockCount - 1 - i)
+//                    * sequence.Count;
+
+//int bitIndexInBlock = _bitNumbering is BitNumbering.Lsb0
+//   ? blockIndex + j
+//   : blockIndex + (sequence.Count - 1 - j);
