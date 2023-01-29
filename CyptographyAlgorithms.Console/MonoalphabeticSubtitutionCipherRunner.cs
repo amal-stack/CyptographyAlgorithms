@@ -5,7 +5,7 @@ namespace CyptographyAlgorithms.Console;
 [Demonstrates<MonoalphabeticSubstitutionCipher>]
 public class MonoalphabeticSubtitutionCipherRunner : ICryptoAlgorithmRunner
 {
-    static void RunMonoalphabeticSubstitutionCipher()
+    public static void Run()
     {
         System.Console.Write("Generate random permutation table? [y/n]> ");
         bool random = System.Console.ReadLine()!.Trim().ToLower() == "y";

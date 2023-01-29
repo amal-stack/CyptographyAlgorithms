@@ -6,7 +6,7 @@ namespace CyptographyAlgorithms.Console;
 [Demonstrates<Lfsr>]
 public class LfsrRunner : ICryptoAlgorithmRunner
 {
-    public static void RunLfsr()
+    public static void Run()
     {
 
         System.Console.WriteLine("Linear-feedback shift register (LFSR) implementation");
